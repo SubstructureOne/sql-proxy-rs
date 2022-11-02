@@ -34,6 +34,7 @@ impl PacketHandler for PassthroughHandler {
 
 #[tokio::main]
 async fn main() {
+    println!("Entering main");
     env_logger::init();
     let mut args = std::env::args().skip(1);
 

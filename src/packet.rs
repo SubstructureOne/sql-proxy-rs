@@ -15,6 +15,26 @@ impl Packet {
         Packet { db_type, bytes }
     }
 
+    pub fn from_query(db_type: DatabaseType, sql: &str) -> Packet {
+        assert_eq!(db_type, DatabaseType::PostgresSQL);
+        let mut sqlbytes = sql.as_bytes().to_vec();
+        if sqlbytes[sqlbytes.len()-1] != 0 {
+            sqlbytes.push(0);
+        }
+        // length = length of sql query
+        //          +4 for the packet length (u32)
+        //          +1 for the message type ('Q' for query)
+        //          -1 to not include the null terminator
+        let length = (sqlbytes.len() + 4) as u32;
+        let mut bytes = vec![b'Q'];
+        bytes.extend(length.to_be_bytes());
+        bytes.extend(sqlbytes);
+        Packet {
+            db_type: DatabaseType::PostgresSQL,
+            bytes
+        }
+    }
+
     /**
      * Create an error packet for MariaDB
      **/
